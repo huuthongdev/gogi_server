@@ -1,5 +1,5 @@
 ## 1.User
-* **Services**
+**Services**
 * Sign Up | Client/Staff/Marketing 
 * Verify Account
 * Login
