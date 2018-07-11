@@ -149,5 +149,36 @@ class UserServices {
             return userInfo;
         });
     }
+    static forgotPassword(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!email)
+                throw new my_error_model_1.MyError('EMAIL_MUST_BE_PROVIDED', 404);
+            if (validateEmail_1.validateEmail(email) === false)
+                throw new my_error_model_1.MyError('WRONG_EMAIL_FORMAT', 404);
+            const user = yield user_model_1.User.findOne({ email });
+            if (!user)
+                throw new my_error_model_1.MyError('USER_NOT_EXISTED', 404);
+            if (user.isActive === false)
+                throw new my_error_model_1.MyError('USER_NOT_ACTIVE', 404);
+            const tokenResetPass = yield jwt_1.signForgotPassword({ _id: user._id });
+            return tokenResetPass;
+        });
+    }
+    static changePasswordForgot(tokenResetPass, plainPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!plainPassword)
+                throw new my_error_model_1.MyError('PASSWORD_MUST_BE_PROVIDED', 404);
+            if (plainPassword.length < 7)
+                throw new my_error_model_1.MyError('PASSWORD_LENGTH_MUST_BE_MORE_THAN_SEVEN_CHARACTERS', 404);
+            const obj = yield jwt_1.verify(tokenResetPass);
+            const password = yield bcryptjs_1.hash(plainPassword, 8);
+            const user = yield user_model_1.User.findByIdAndUpdate(obj._id, { password }, { new: true });
+            if (!user)
+                throw new my_error_model_1.MyError('USER_NOT_EXISTED', 404);
+            const userInfo = user.toObject();
+            delete userInfo.password;
+            return userInfo;
+        });
+    }
 }
 exports.UserServices = UserServices;

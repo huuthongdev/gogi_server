@@ -33,3 +33,15 @@ exports.userRouter.get('/signup/admin/:secrectKeyAdmin/:email/:plainPassword', (
         .then(user => res.send({ success: true, user }))
         .catch(res.onError);
 });
+exports.userRouter.post('/forgotpassword', (req, res) => {
+    const { email } = req.body;
+    user_services_1.UserServices.forgotPassword(email)
+        .then(tokenReset => res.send({ success: true, tokenReset }))
+        .catch(res.onError);
+});
+exports.userRouter.post('/forgotpassword/changepass', (req, res) => {
+    const { tokenReset, plainPassword } = req.body;
+    user_services_1.UserServices.changePasswordForgot(tokenReset, plainPassword)
+        .then(user => res.send({ success: true, user }))
+        .catch(res.onError);
+});

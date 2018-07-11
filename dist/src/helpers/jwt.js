@@ -25,6 +25,16 @@ function sign(obj) {
     });
 }
 exports.sign = sign;
+function signForgotPassword(obj) {
+    return new Promise((resolve, reject) => {
+        jsonwebtoken_1.default.sign(obj, secrectKey, { expiresIn: '300000000' }, (error, token) => {
+            if (error)
+                return reject(error);
+            resolve(token);
+        });
+    });
+}
+exports.signForgotPassword = signForgotPassword;
 function verify(token) {
     return new Promise((resolve, reject) => {
         jsonwebtoken_1.default.verify(token, secrectKey, (error, obj) => __awaiter(this, void 0, void 0, function* () {

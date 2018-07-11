@@ -5,3 +5,4 @@
     * Login
     * Change Role
     * Sign Up Admin 
+    * Forgot Password

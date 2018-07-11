@@ -6,7 +6,7 @@ import { hash, compare } from "bcryptjs";
 // Helpers
 import { validateEmail } from "../helpers/validateEmail";
 import { checkObjectId } from "../helpers/checkObjectId";
-import { sign } from "../helpers/jwt";
+import { sign, signForgotPassword, verify } from "../helpers/jwt";
 
 const secrectKey = '120sadjaoczxklcj0912asidjdasijsadadszx12312';
 
@@ -108,6 +108,28 @@ export class UserServices {
         const userInfo = user.toObject();
         delete userInfo.password;
         return userInfo;
+    }
+
+    static async forgotPassword(email: string) {
+        if (!email) throw new MyError('EMAIL_MUST_BE_PROVIDED', 404);
+        if (validateEmail(email) === false) throw new MyError('WRONG_EMAIL_FORMAT', 404);
+        const user: any = await User.findOne({ email });
+        if (!user) throw new MyError('USER_NOT_EXISTED', 404);
+        if (user.isActive === false) throw new MyError('USER_NOT_ACTIVE', 404);
+        const tokenResetPass = await signForgotPassword({ _id: user._id });
+        return tokenResetPass;
+    }
+
+    static async changePasswordForgot(tokenResetPass: string, plainPassword: string) {
+        if (!plainPassword) throw new MyError('PASSWORD_MUST_BE_PROVIDED', 404);
+        if (plainPassword.length < 7) throw new MyError('PASSWORD_LENGTH_MUST_BE_MORE_THAN_SEVEN_CHARACTERS', 404);
+        const obj: any = await verify(tokenResetPass);
+        const password = await hash(plainPassword, 8);
+        const user = await User.findByIdAndUpdate(obj._id, { password }, { new: true });
+        if (!user) throw new MyError('USER_NOT_EXISTED', 404);
+        const userInfo = user.toObject();
+        delete userInfo.password;
+        return userInfo;        
     }
 
 }

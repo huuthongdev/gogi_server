@@ -12,6 +12,15 @@ export function sign(obj: any) {
     });
 }
 
+export function signForgotPassword(obj: any) {
+    return new Promise((resolve, reject) => {
+        jwt.sign(obj, secrectKey, { expiresIn: '300000000' }, (error, token: any) => {
+            if (error) return reject(error);
+            resolve(token);
+        });
+    });
+}
+
 export function verify(token: string) {
     return new Promise((resolve, reject) => {
         jwt.verify(token, secrectKey, async (error, obj: any) => {
