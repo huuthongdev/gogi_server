@@ -180,5 +180,19 @@ class UserServices {
             return userInfo;
         });
     }
+    static editProfile(idUser, name, address, birthday, imgProfile) {
+        return __awaiter(this, void 0, void 0, function* () {
+            checkObjectId_1.checkObjectId(idUser);
+            const profile = {
+                name, address, birthday, imgProfile
+            };
+            const user = yield user_model_1.User.findByIdAndUpdate(idUser, { profile }, { new: true });
+            if (!user)
+                throw new my_error_model_1.MyError('USER_NOT_EXISTED', 400);
+            const userInfo = user.toObject();
+            delete userInfo.password;
+            return userInfo;
+        });
+    }
 }
 exports.UserServices = UserServices;

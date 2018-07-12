@@ -39,7 +39,7 @@ export class UserServices {
         return userInfo;
     }
 
-    static async signUpAdmin(secrectKeyAdmin:string, email: string, plainPassword: string) {
+    static async signUpAdmin(secrectKeyAdmin: string, email: string, plainPassword: string) {
         // Check Secrect key
         if (secrectKeyAdmin !== '120sadjaoczxklcj0912asidjdasijsadadszx12312') throw new MyError('ACCESS_IS_DENIDED', 400);
 
@@ -129,7 +129,19 @@ export class UserServices {
         if (!user) throw new MyError('USER_NOT_EXISTED', 404);
         const userInfo = user.toObject();
         delete userInfo.password;
-        return userInfo;        
+        return userInfo;
+    }
+
+    static async editProfile(idUser: string, name: string, address: string, birthday: Date, imgProfile: string) {
+        checkObjectId(idUser);
+        const profile = {
+            name, address, birthday, imgProfile
+        }
+        const user = await User.findByIdAndUpdate(idUser, { profile }, { new: true })
+        if (!user) throw new MyError('USER_NOT_EXISTED', 400);
+        const userInfo = user.toObject();
+        delete userInfo.password;
+        return userInfo;
     }
 
 }

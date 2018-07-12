@@ -45,3 +45,9 @@ exports.userRouter.post('/forgotpassword/changepass', (req, res) => {
         .then(user => res.send({ success: true, user }))
         .catch(res.onError);
 });
+exports.userRouter.post('/edit', mustBeUse_middleware_1.mustBeUse, (req, res) => {
+    const { phone, name, address, birthday, imgProfile } = req.body;
+    user_services_1.UserServices.editProfile(req.idUser, name, address, birthday, imgProfile)
+        .then(user => res.send({ success: true, user }))
+        .catch(res.onError);
+});

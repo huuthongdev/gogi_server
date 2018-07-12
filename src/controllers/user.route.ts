@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { UserServices } from "../services/user.services";
-import { mustBeUseAdmin } from "./mustBeUse.middleware";
+import { mustBeUseAdmin, mustBeUse } from "./mustBeUse.middleware";
 
 export const userRouter = Router();
 
@@ -48,6 +48,13 @@ userRouter.post('/forgotpassword', (req, res: any) => {
 userRouter.post('/forgotpassword/changepass', (req, res: any) => {
     const { tokenReset, plainPassword } = req.body;
     UserServices.changePasswordForgot(tokenReset, plainPassword)
-    .then(user => res.send({ success: true, user }))
-    .catch(res.onError);
+        .then(user => res.send({ success: true, user }))
+        .catch(res.onError);
+});
+
+userRouter.post('/edit', mustBeUse , (req: any, res: any) => {
+    const { phone, name, address, birthday, imgProfile } = req.body;
+    UserServices.editProfile(req.idUser, name, address, birthday, imgProfile)
+        .then(user => res.send({ success: true, user }))
+        .catch(res.onError);
 });
