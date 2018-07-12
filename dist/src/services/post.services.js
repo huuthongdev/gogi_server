@@ -14,7 +14,7 @@ const my_error_model_1 = require("../models/my-error.model");
 class PostServices {
     static getAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            return post_model_1.Post.find({});
+            return post_model_1.Post.find({ isActive: true });
         });
     }
     static getPostById(_id) {
@@ -44,7 +44,7 @@ class PostServices {
             if (!title)
                 throw new my_error_model_1.MyError('TITLE_MUST_BE_PROVIDED', 404);
             if (!content)
-                throw new my_error_model_1.MyError('TITLE_MUST_BE_PROVIDED', 404);
+                throw new my_error_model_1.MyError('CONTENT_MUST_BE_PROVIDED', 404);
             const postOld = yield post_model_1.Post.findById(_id);
             if (!postOld)
                 throw new my_error_model_1.MyError('POST_NOT_EXISTED', 404);
@@ -54,7 +54,7 @@ class PostServices {
                 update_at: Date.now(),
                 update_by: idUser
             };
-            const post = yield post_model_1.Post.findByIdAndUpdate(_id, { title, excerpt, content, thumbnail, timeStamp, $push: { postOldInfo } }, { new: true });
+            const post = yield post_model_1.Post.findByIdAndUpdate(_id, { title, excerpt, content, thumbnail, timeStamp, $push: { modified: postOldInfo } }, { new: true });
             return post;
         });
     }

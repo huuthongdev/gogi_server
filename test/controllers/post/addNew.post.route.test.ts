@@ -22,7 +22,8 @@ describe('Post - Add New | POST /post', () => {
         const bodyRequest = {
             title: 'tieude',
             excerpt: 'mota',
-            content: 'noidung'
+            content: 'noidung',
+            thumbnail: 'empty'
         }
         const response = await request(app)
         .post('/post')
@@ -33,6 +34,7 @@ describe('Post - Add New | POST /post', () => {
         equal(post.title, 'tieude');
         equal(post.excerpt, 'mota');
         equal(post.content, 'noidung');
+        equal(post.thumbnail, 'empty');
         equal(post.create_by, idUser);
         equal(post.modified.length, 0);
         // Check post inside database
@@ -40,6 +42,7 @@ describe('Post - Add New | POST /post', () => {
         equal(postDb.title, 'tieude');
         equal(postDb.excerpt, 'mota');
         equal(postDb.content, 'noidung');
+        equal(postDb.thumbnail, 'empty');
         equal(postDb.create_by.toString(), idUser);
         equal(postDb.modified.length, 0);
     });

@@ -23,6 +23,7 @@ const postSchema = new Schema({
         title: { type: String, required: true, trim: true },
         excerpt: { type: String, trim: true, required: true },
         content: { type: String, trim: true, required: true },
+        thumbnail: { type: String, trim: true },
         isActive: { type: Boolean, default: true }
 
     }]

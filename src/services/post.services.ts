@@ -5,9 +5,9 @@ import { MyError } from "../models/my-error.model";
 export class PostServices {
 
     static async getAll() {
-        return Post.find({})
+        return Post.find({ isActive: true })
     }
-
+ 
     static async getPostById(_id: string) {
         checkObjectId(_id);
         const post = await Post.findById(_id);
@@ -27,7 +27,7 @@ export class PostServices {
     static async update(idUser: string, _id: string, title: string, excerpt: string, content: string, thumbnail: string) {
         checkObjectId(idUser, _id);
         if (!title) throw new MyError('TITLE_MUST_BE_PROVIDED', 404);
-        if (!content) throw new MyError('TITLE_MUST_BE_PROVIDED', 404);
+        if (!content) throw new MyError('CONTENT_MUST_BE_PROVIDED', 404);
         const postOld: any = await Post.findById(_id);
         if (!postOld) throw new MyError('POST_NOT_EXISTED', 404);
         const postOldInfo = postOld.toObject();
@@ -36,7 +36,7 @@ export class PostServices {
             update_at: Date.now(),
             update_by: idUser
         }
-        const post = await Post.findByIdAndUpdate(_id, { title, excerpt, content, thumbnail, timeStamp, $push: { postOldInfo } }, { new: true });
+        const post = await Post.findByIdAndUpdate(_id, { title, excerpt, content, thumbnail, timeStamp, $push: { modified: postOldInfo } }, { new: true });
         return post;
     }
 

@@ -16,8 +16,9 @@ const assert_1 = require("assert");
 const app_1 = require("../../../src/app");
 const user_services_1 = require("../../../src/services/user.services");
 const post_model_1 = require("../../../src/models/post.model");
-describe('Post - Add New | POST /post', () => {
-    let token, idUser;
+const post_services_1 = require("../../../src/services/post.services");
+describe('Post - Disable | DELETE /disable/:_id', () => {
+    let idPost, token, idUser;
     beforeEach('Prepare data for test', () => __awaiter(this, void 0, void 0, function* () {
         // Sign up a new User
         const user = yield user_services_1.UserServices.signUp('huuthong.mgd@gmail.com', '0908508136', 'Huuthong123', 'Staff', 'huuthong', '76/6 tbg', new Date(1996, 11, 12, 3, 30, 0, 0), 'empty');
@@ -28,22 +29,19 @@ describe('Post - Add New | POST /post', () => {
         // Login User
         const userLogin = yield user_services_1.UserServices.login('0908508136', 'Huuthong123');
         token = userLogin.token;
+        // Add new Post
+        const post = yield post_services_1.PostServices.addNew(userLogin._id, 'tieude', 'tomtat', 'noidung', 'empty');
+        idPost = post._id;
     }));
-    it('Can add new', () => __awaiter(this, void 0, void 0, function* () {
-        const bodyRequest = {
-            title: 'tieude',
-            excerpt: 'mota',
-            content: 'noidung',
-            thumbnail: 'empty'
-        };
+    it('Can disable a post', () => __awaiter(this, void 0, void 0, function* () {
         const response = yield supertest_1.default(app_1.app)
-            .post('/post')
-            .set({ token })
-            .send(bodyRequest);
-        const { success, post } = response.body;
+            .delete('/post/disable/' + idPost)
+            .set({ token });
+        const { success, post, message } = response.body;
         assert_1.equal(success, true);
+        assert_1.equal(post._id, idPost);
         assert_1.equal(post.title, 'tieude');
-        assert_1.equal(post.excerpt, 'mota');
+        assert_1.equal(post.excerpt, 'tomtat');
         assert_1.equal(post.content, 'noidung');
         assert_1.equal(post.thumbnail, 'empty');
         assert_1.equal(post.create_by, idUser);
@@ -51,65 +49,61 @@ describe('Post - Add New | POST /post', () => {
         // Check post inside database
         const postDb = yield post_model_1.Post.findOne({});
         assert_1.equal(postDb.title, 'tieude');
-        assert_1.equal(postDb.excerpt, 'mota');
+        assert_1.equal(postDb.excerpt, 'tomtat');
         assert_1.equal(postDb.content, 'noidung');
         assert_1.equal(postDb.thumbnail, 'empty');
         assert_1.equal(postDb.create_by.toString(), idUser);
         assert_1.equal(postDb.modified.length, 0);
+        assert_1.equal(postDb.isActive, false);
     }));
-    it('Cannot add new without title', () => __awaiter(this, void 0, void 0, function* () {
-        const bodyRequest = {
-            // title: 'tieude',
-            excerpt: 'mota',
-            content: 'noidung'
-        };
+    it('Cannot disable post with invalid id', () => __awaiter(this, void 0, void 0, function* () {
         const response = yield supertest_1.default(app_1.app)
-            .post('/post')
-            .set({ token })
-            .send(bodyRequest);
+            .delete('/post/disable/' + 'idPost')
+            .set({ token });
         const { success, post, message } = response.body;
         assert_1.equal(success, false);
         assert_1.equal(post, undefined);
-        assert_1.equal(message, 'TITLE_MUST_BE_PROVIDED');
-        assert_1.equal(response.status, 404);
-        // Check post inside database
-        const postDb = yield post_model_1.Post.findOne({});
-        assert_1.equal(postDb, undefined);
-    }));
-    it('Cannot add new without content', () => __awaiter(this, void 0, void 0, function* () {
-        const bodyRequest = {
-            title: 'tieude',
-            excerpt: 'mota',
-        };
-        const response = yield supertest_1.default(app_1.app)
-            .post('/post')
-            .set({ token })
-            .send(bodyRequest);
-        const { success, post, message } = response.body;
-        assert_1.equal(success, false);
-        assert_1.equal(post, undefined);
-        assert_1.equal(message, 'CONTENT_MUST_BE_PROVIDED');
-        assert_1.equal(response.status, 404);
-        // Check post inside database
-        const postDb = yield post_model_1.Post.findOne({});
-        assert_1.equal(postDb, undefined);
-    }));
-    it('Cannot add new without token', () => __awaiter(this, void 0, void 0, function* () {
-        const bodyRequest = {
-            title: 'tieude',
-            excerpt: 'mota',
-            content: 'noidung'
-        };
-        const response = yield supertest_1.default(app_1.app)
-            .post('/post')
-            // .set({ token })
-            .send(bodyRequest);
-        const { success, post, message } = response.body;
-        assert_1.equal(success, false);
-        assert_1.equal(post, undefined);
-        assert_1.equal(message, 'INVALID_TOKEN');
         assert_1.equal(response.status, 400);
+        assert_1.equal(message, 'INVALID_ID');
         // Check post inside database
+        const postDb = yield post_model_1.Post.findOne({});
+        assert_1.equal(postDb.title, 'tieude');
+        assert_1.equal(postDb.excerpt, 'tomtat');
+        assert_1.equal(postDb.content, 'noidung');
+        assert_1.equal(postDb.thumbnail, 'empty');
+        assert_1.equal(postDb.create_by.toString(), idUser);
+        assert_1.equal(postDb.modified.length, 0);
+        assert_1.equal(postDb.isActive, true);
+    }));
+    it('Cannot disable post with invalid token', () => __awaiter(this, void 0, void 0, function* () {
+        const response = yield supertest_1.default(app_1.app)
+            .delete('/post/disable/' + idPost)
+            .set({ token: '123asd' });
+        const { success, post, message } = response.body;
+        assert_1.equal(success, false);
+        assert_1.equal(post, undefined);
+        assert_1.equal(response.status, 400);
+        assert_1.equal(message, 'INVALID_TOKEN');
+        // Check post inside database
+        const postDb = yield post_model_1.Post.findOne({});
+        assert_1.equal(postDb.title, 'tieude');
+        assert_1.equal(postDb.excerpt, 'tomtat');
+        assert_1.equal(postDb.content, 'noidung');
+        assert_1.equal(postDb.thumbnail, 'empty');
+        assert_1.equal(postDb.create_by.toString(), idUser);
+        assert_1.equal(postDb.modified.length, 0);
+        assert_1.equal(postDb.isActive, true);
+    }));
+    it('Cannot disable a removed post', () => __awaiter(this, void 0, void 0, function* () {
+        yield post_model_1.Post.findByIdAndRemove(idPost);
+        const response = yield supertest_1.default(app_1.app)
+            .delete('/post/disable/' + idPost)
+            .set({ token });
+        const { success, post, message } = response.body;
+        assert_1.equal(success, false);
+        assert_1.equal(post, undefined);
+        assert_1.equal(response.status, 404);
+        assert_1.equal(message, 'POST_NOT_EXISTED');
         const postDb = yield post_model_1.Post.findOne({});
         assert_1.equal(postDb, undefined);
     }));
