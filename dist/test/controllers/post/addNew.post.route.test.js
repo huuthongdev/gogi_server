@@ -113,4 +113,32 @@ describe('Post - Add New | POST /post', () => {
         const postDb = yield post_model_1.Post.findOne({});
         assert_1.equal(postDb, undefined);
     }));
+    it('Cannot add new twice with a title', () => __awaiter(this, void 0, void 0, function* () {
+        const bodyRequest = {
+            title: 'tieude',
+            excerpt: 'mota',
+            content: 'noidung',
+            thumbnail: 'empty'
+        };
+        yield supertest_1.default(app_1.app)
+            .post('/post')
+            .set({ token })
+            .send(bodyRequest);
+        const response = yield supertest_1.default(app_1.app)
+            .post('/post')
+            .set({ token })
+            .send(bodyRequest);
+        const { success, post, message } = response.body;
+        assert_1.equal(success, false);
+        assert_1.equal(message, 'POST_IS_EXISTED');
+        assert_1.equal(response.status, 400);
+        // Check post inside database
+        const postDb = yield post_model_1.Post.findOne({});
+        assert_1.equal(postDb.title, 'tieude');
+        assert_1.equal(postDb.excerpt, 'mota');
+        assert_1.equal(postDb.content, 'noidung');
+        assert_1.equal(postDb.thumbnail, 'empty');
+        assert_1.equal(postDb.create_by.toString(), idUser);
+        assert_1.equal(postDb.modified.length, 0);
+    }));
 });

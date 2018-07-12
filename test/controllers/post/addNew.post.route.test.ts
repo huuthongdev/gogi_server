@@ -26,9 +26,9 @@ describe('Post - Add New | POST /post', () => {
             thumbnail: 'empty'
         }
         const response = await request(app)
-        .post('/post')
-        .set({ token })
-        .send(bodyRequest);
+            .post('/post')
+            .set({ token })
+            .send(bodyRequest);
         const { success, post } = response.body;
         equal(success, true);
         equal(post.title, 'tieude');
@@ -54,9 +54,9 @@ describe('Post - Add New | POST /post', () => {
             content: 'noidung'
         }
         const response = await request(app)
-        .post('/post')
-        .set({ token })
-        .send(bodyRequest);
+            .post('/post')
+            .set({ token })
+            .send(bodyRequest);
         const { success, post, message } = response.body;
         equal(success, false);
         equal(post, undefined);
@@ -74,9 +74,9 @@ describe('Post - Add New | POST /post', () => {
             // content: 'noidung'
         }
         const response = await request(app)
-        .post('/post')
-        .set({ token })
-        .send(bodyRequest);
+            .post('/post')
+            .set({ token })
+            .send(bodyRequest);
         const { success, post, message } = response.body;
         equal(success, false);
         equal(post, undefined);
@@ -94,9 +94,9 @@ describe('Post - Add New | POST /post', () => {
             content: 'noidung'
         }
         const response = await request(app)
-        .post('/post')
-        // .set({ token })
-        .send(bodyRequest);
+            .post('/post')
+            // .set({ token })
+            .send(bodyRequest);
         const { success, post, message } = response.body;
         equal(success, false);
         equal(post, undefined);
@@ -105,6 +105,35 @@ describe('Post - Add New | POST /post', () => {
         // Check post inside database
         const postDb: any = await Post.findOne({});
         equal(postDb, undefined);
+    });
+
+    it('Cannot add new twice with a title', async () => {
+        const bodyRequest = {
+            title: 'tieude',
+            excerpt: 'mota',
+            content: 'noidung',
+            thumbnail: 'empty'
+        }
+        await request(app)
+            .post('/post')
+            .set({ token })
+            .send(bodyRequest);
+        const response = await request(app)
+            .post('/post')
+            .set({ token })
+            .send(bodyRequest);
+        const { success, post, message } = response.body;
+        equal(success, false);
+        equal(message, 'POST_IS_EXISTED');
+        equal(response.status, 400);
+        // Check post inside database
+        const postDb: any = await Post.findOne({});
+        equal(postDb.title, 'tieude');
+        equal(postDb.excerpt, 'mota');
+        equal(postDb.content, 'noidung');
+        equal(postDb.thumbnail, 'empty');
+        equal(postDb.create_by.toString(), idUser);
+        equal(postDb.modified.length, 0);
     });
 
 

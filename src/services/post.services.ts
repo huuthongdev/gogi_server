@@ -7,7 +7,7 @@ export class PostServices {
     static async getAll() {
         return Post.find({ isActive: true })
     }
- 
+
     static async getPostById(_id: string) {
         checkObjectId(_id);
         const post = await Post.findById(_id);
@@ -20,8 +20,12 @@ export class PostServices {
         if (!title) throw new MyError('TITLE_MUST_BE_PROVIDED', 404);
         if (!content) throw new MyError('CONTENT_MUST_BE_PROVIDED', 404);
         const post = new Post({ title, excerpt, content, thumbnail, create_by: idUser });
-        await post.save();
-        return post;
+        try {
+            await post.save();
+            return post;
+        } catch (error) {
+            throw new MyError('POST_IS_EXISTED', 400);
+        }
     }
 
     static async update(idUser: string, _id: string, title: string, excerpt: string, content: string, thumbnail: string) {

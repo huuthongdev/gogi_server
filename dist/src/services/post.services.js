@@ -34,8 +34,13 @@ class PostServices {
             if (!content)
                 throw new my_error_model_1.MyError('CONTENT_MUST_BE_PROVIDED', 404);
             const post = new post_model_1.Post({ title, excerpt, content, thumbnail, create_by: idUser });
-            yield post.save();
-            return post;
+            try {
+                yield post.save();
+                return post;
+            }
+            catch (error) {
+                throw new my_error_model_1.MyError('POST_IS_EXISTED', 400);
+            }
         });
     }
     static update(idUser, _id, title, excerpt, content, thumbnail) {

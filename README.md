@@ -19,3 +19,10 @@
 * **Services Extend**
     * Add post to a category
     * Remove post inside a category
+
+#### 3.Category
+* **Services**
+    * Get all category 
+    * Add new category
+    * Update category
+    * Remove category
