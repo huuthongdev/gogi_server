@@ -12,6 +12,8 @@ process.env.NODE_ENV = 'test';
 require("../src/helpers/connectDatabase");
 // Collections
 const user_model_1 = require("../src/models/user.model");
+const post_model_1 = require("../src/models/post.model");
 beforeEach('Clear all data for test', () => __awaiter(this, void 0, void 0, function* () {
     yield user_model_1.User.remove({});
+    yield post_model_1.Post.remove({});
 }));

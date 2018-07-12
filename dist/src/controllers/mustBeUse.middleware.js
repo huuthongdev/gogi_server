@@ -21,3 +21,13 @@ function mustBeUseAdmin(req, res, next) {
 }
 exports.mustBeUseAdmin = mustBeUseAdmin;
 ;
+function mustBeUseStaff(req, res, next) {
+    jwt_1.verifyStaff(req.headers.token)
+        .then((user) => {
+        req.idUser = user._id;
+        next();
+    })
+        .catch(res.onError);
+}
+exports.mustBeUseStaff = mustBeUseStaff;
+;

@@ -2,6 +2,7 @@ import express from 'express';
 import { json } from 'body-parser';
 import { userRouter } from './controllers/user.route';
 import { mailerRouter } from './controllers/mailer.route';
+import { postRouter } from './controllers/post.route';
 
 export const app = express();
 
@@ -16,3 +17,4 @@ app.use((req: any, res: any, next) => {
 
 app.use('/user', userRouter);
 app.use('/mailer', mailerRouter);
+app.use('/post', postRouter);

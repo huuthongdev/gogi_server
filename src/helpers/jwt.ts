@@ -47,3 +47,22 @@ export function verifyAdmin(token: string) {
         });
     });
 }
+
+export function verifyStaff(token: string) {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, secrectKey, async (error, obj: any) => {
+            if (error) return reject(new MyError('INVALID_TOKEN', 400));
+            const user: any = await User.findById(obj._id);
+            if (!user) return reject(new MyError('USER_NOT_EXISTED', 400));
+            var checkRole = false;
+            const roleArr = ['Admin', 'Staff', 'Marketing'];
+            for (let i = 0; i < roleArr.length; i++) {
+                if (roleArr[i] === user.role) checkRole = true;
+            };
+            if (checkRole === false) return reject(new MyError('ACCESS_IS_DENIDED', 400));
+            delete obj.iat;
+            delete obj.exp;
+            resolve(obj);
+        });
+    });
+}

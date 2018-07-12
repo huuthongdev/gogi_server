@@ -67,3 +67,27 @@ function verifyAdmin(token) {
     });
 }
 exports.verifyAdmin = verifyAdmin;
+function verifyStaff(token) {
+    return new Promise((resolve, reject) => {
+        jsonwebtoken_1.default.verify(token, secrectKey, (error, obj) => __awaiter(this, void 0, void 0, function* () {
+            if (error)
+                return reject(new my_error_model_1.MyError('INVALID_TOKEN', 400));
+            const user = yield user_model_1.User.findById(obj._id);
+            if (!user)
+                return reject(new my_error_model_1.MyError('USER_NOT_EXISTED', 400));
+            var checkRole = false;
+            const roleArr = ['Admin', 'Staff', 'Marketing'];
+            for (let i = 0; i < roleArr.length; i++) {
+                if (roleArr[i] === user.role)
+                    checkRole = true;
+            }
+            ;
+            if (checkRole === false)
+                return reject(new my_error_model_1.MyError('ACCESS_IS_DENIDED', 400));
+            delete obj.iat;
+            delete obj.exp;
+            resolve(obj);
+        }));
+    });
+}
+exports.verifyStaff = verifyStaff;
